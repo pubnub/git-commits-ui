@@ -37,7 +37,7 @@ body {
 </head><body>
   <div id="activity-container">
     <h3>GitHub Activity Log</h3>
-    <input type="text" id="organization"></input>
+    <form onsubmit="updateOrg"><input type="text" id="organization"></input></form>
     <ul id="activity"> </ul>
   </div>
 
@@ -45,44 +45,61 @@ body {
 <div id="commitDonut"></div>
 <script>
 var pubnub = PUBNUB.init({
-  publish_key: 'demo',
-  subscribe_key: 'demo'
-})
+    publish_key: 'demo',
+    subscribe_key: 'demo'
+  })
   , activity = document.getElementById('activity')
+  , org = ""
+  , updateOrg = function() {
+    org = document.getElementById('organization').value;
+    teamDonut.unload();
+    commitDonut.unload();
+    pubnub.history({
+      channel: 'pubnub-git',
+      callback: displayMessages,
+      count: 1000
+    });
+    return false;
+  }
   , displayMessage = function(m) {
-    if(typeof m.avatar_url != 'undefined') {
-      var x = document.createElement("img");
-      x.setAttribute("src", m.avatar_url);
-      var li = document.createElement("li");
-      li.appendChild(x); 
-      li.appendChild(document.createTextNode(m.name + " just pushed " + m.num_commits + " commits to " + m.repo_name));
-      activity.insertBefore(li, activity.firstChild);
-      //activity.innerHTML = "<li><img src='" + m.avatar_url + "'> " + m.name + " just pushed " + m.num_commits + " commits to " + m.repo_name + activity.innerHTML
-      
-    }
-    if(typeof m.team != 'undefined') {
-      var d = 0
-        , c = 0
-        , h = new Date(m.time).getHours();
-      if(teamDonut.data(m.team).length > 0 && typeof teamDonut.data(m.team)[0].values[0].value != 'undefined')  {
-        d = teamDonut.data(m.team)[0].values[0].value;
+    if(org == "" || m.hackathon == org) {
+      if(typeof m.avatar_url != 'undefined') {
+        var x = document.createElement("img");
+        x.setAttribute("src", m.avatar_url);
+        var li = document.createElement("li");
+        li.appendChild(x); 
+        li.appendChild(document.createTextNode(m.name + " just pushed " + m.num_commits + " commits to " + m.repo_name));
+        activity.insertBefore(li, activity.firstChild);
+        //activity.innerHTML = "<li><img src='" + m.avatar_url + "'> " + m.name + " just pushed " + m.num_commits + " commits to " + m.repo_name + activity.innerHTML
+        
       }
-      teamDonut.load({ columns: [[m.team, d + 1]] } );
-      if(commitDonut.data(m.name).length > 0 && typeof commitDonut.data(m.name)[0].values[0].value != 'undefined')  {
-        c = commitDonut.data(m.name)[0].values[0].value;
+      if(typeof m.team != 'undefined') {
+        var d = 0
+          , c = 0
+          , h = new Date(m.time).getHours();
+        if(teamDonut.data(m.team).length > 0 && typeof teamDonut.data(m.team)[0].values[0].value != 'undefined')  {
+          d = teamDonut.data(m.team)[0].values[0].value;
+        }
+        teamDonut.load({ columns: [[m.team, d + 1]] } );
+        if(commitDonut.data(m.name).length > 0 && typeof commitDonut.data(m.name)[0].values[0].value != 'undefined')  {
+          c = commitDonut.data(m.name)[0].values[0].value;
+        }
+        commitDonut.load({ columns: [[m.name, c + 1]] } );
       }
-      commitDonut.load({ columns: [[m.name, c + 1]] } );
     }
   }
   , displayMessages = function(ms) { ms[0].forEach(displayMessage); }
-  , displayLiveMessage = function(m) { var aSound = document.createElement('audio');
-     if(m.num_commits > 1) {
-       aSound.setAttribute('src', 'applause_x.wav');
-     } else {
-       aSound.setAttribute('src', 'applause_y.wav');
-     }
-     aSound.play();
-    displayMessage(m);
+  , displayLiveMessage = function(m) { 
+    if(org == "" || m.hackathon == org) {
+      var aSound = document.createElement('audio');
+      if(m.num_commits > 1) {
+        aSound.setAttribute('src', 'applause_x.wav');
+      } else {
+        aSound.setAttribute('src', 'applause_y.wav');
+      }
+      aSound.play();
+      displayMessage(m);
+    }
   }
   , teamDonut = c3.generate({
     bindto: "#teamDonut",
