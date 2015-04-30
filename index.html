@@ -67,7 +67,7 @@ var pubnub = PUBNUB.init({
     return false;
   }
   , displayMessage = function(m) {
-    if(org == "" || m.hackathon == org) {
+    if(org == "" || m.org == org) {
       if(typeof m.avatar_url != 'undefined') {
         var x = document.createElement("img");
         x.setAttribute("src", m.avatar_url);
@@ -95,7 +95,7 @@ var pubnub = PUBNUB.init({
   }
   , displayMessages = function(ms) { ms[0].forEach(displayMessage); }
   , displayLiveMessage = function(m) { 
-    if(org == "" || m.hackathon == org) {
+    if(org == "" || m.org== org) {
       var aSound = document.createElement('audio');
       if(m.num_commits > 1) {
         aSound.setAttribute('src', 'applause_x.wav');
