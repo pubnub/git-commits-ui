@@ -33,6 +33,7 @@ body {
 </head><body>
   <div id="activity-container">
     <h3>GitHub Activity Log</h3>
+    <input type="text" id=""
     <ul id="activity"></ul>
   </div>
 
@@ -46,7 +47,13 @@ var pubnub = PUBNUB.init({
   , activity = document.getElementById('activity')
   , displayMessage = function(m) {
     if(typeof m.avatar_url != 'undefined') {
-      activity.innerHTML = "<li><img src='" + m.avatar_url + "'> " + m.name + " just pushed " + m.num_commits + " commits to " + m.repo_name + activity.innerHTML
+      var x = document.createElement("img");
+      x.setAttribute("src", m.avatar_url);
+      var li = document.createElement("li");
+      li.appendChild(x); 
+      li.appendChild(document.createTextElement(m.name + " just pushed " + m.num_commits + " commits to " + m.repo_name));
+      activity.firstChild().insertBefore(li);
+      //activity.innerHTML = "<li><img src='" + m.avatar_url + "'> " + m.name + " just pushed " + m.num_commits + " commits to " + m.repo_name + activity.innerHTML
       
     }
     if(typeof m.team != 'undefined') {
