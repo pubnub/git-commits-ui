@@ -5,6 +5,7 @@ body {
 }
 #organization {
   margin: 2em;
+  float:left;
 }
 #activity-container{
   height: 100%;
@@ -55,7 +56,7 @@ var pubnub = PUBNUB.init({
       var li = document.createElement("li");
       li.appendChild(x); 
       li.appendChild(document.createTextNode(m.name + " just pushed " + m.num_commits + " commits to " + m.repo_name));
-      activity.firstChild.insertBefore(li);
+      activity.insertBefore(li, activity.firstChild);
       //activity.innerHTML = "<li><img src='" + m.avatar_url + "'> " + m.name + " just pushed " + m.num_commits + " commits to " + m.repo_name + activity.innerHTML
       
     }
